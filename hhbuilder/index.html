@@ -50,7 +50,92 @@
         </div>
         <pre class="debug"></pre>
         <script>
-            // your code goes here ...
+
+            "use strict";
+
+            var ageInput = document.querySelector('input[name=age]');
+            var relInput = document.querySelector('select[name=rel]');
+            var smokerInput = document.querySelector('input[name=smoker]');
+            var household = [];
+            var val = 1;
+            
+            var addPerson = function(ev) {
+                ev.preventDefault(); //See if I can get a non jQuery solution
+                var form = document.getElementsByTagName("form")[0];
+                if (form[0].value <= 0) {
+                    showError("Age is required and must be greater than 0.");
+                } else if (form[1].value == "") {
+                    showError("Relationship is required.");
+                } else {
+                    clearErrors();
+                    household.push({id: val, ageInput: parseInt(form[0].value), relInput: form[1].value, smokerInput: form[2].checked});
+                    var ageInput = form[0].value + " years old, ";
+                    var relInput = form[1].value.charAt(0).toUpperCase() + form[1].value.slice(1) + ": ";
+                    var smokerInput = form[2].checked ? "Smoker " : "Non-Smoker ";
+                    var person = document.createElement("li");
+                    var personContent = document.createTextNode(relInput + ageInput + smokerInput);
+                    clearForm();
+                    person.appendChild(personContent);
+                    var delButton = document.createElement("button");
+                    var delContent = document.createTextNode("Delete");
+                    delButton.appendChild(delContent);
+                    delButton.id = val.toString();
+                    delButton.addEventListener("click", removePerson, false);
+                    person.appendChild(delButton);
+                    document.getElementsByClassName("household")[0].appendChild(person);
+                    val++;
+                }
+            };
+
+            var showError = function(error) {
+                alert(error);
+            };
+            
+            function clearForm() {
+              ageInput.value = "";
+              relInput.value = "";
+              smokerInput.checked = false;
+            }
+
+            var clearErrors = function() {
+                while (document.getElementsByClassName("error").length > 0) {
+                    //where is the error class coming from (DOM)
+                    document.getElementsByClassName("error")[0].remove();
+                }
+            };
+
+            var removePerson = function(ev) {
+                ev.toElement.parentElement.remove();
+                //what is above?
+                household.map(function(person) {
+                    //why map- as opposed to filter/each
+                    if (person.id == ev.toElement.id) {
+                        //whaa
+                        household.splice(household.indexOf(person),1);
+                        return person;
+                    } else {
+                        return null;
+                    }
+                });
+            };
+            
+            var submit = function(ev) {
+                ev.preventDefault();
+                var submitEl = document.createElement("h3");
+                var submitCont = document.createTextNode("Form Submitted.");
+                submitEl.appendChild(submitCont);
+                var builder = document.getElementsByClassName("builder")[0];
+                builder.appendChild(submitEl);
+                var debug = document.getElementsByClassName("debug")[0];
+                var householdJSON = document.createTextNode(JSON.stringify(household));
+                debug.appendChild(householdJSON);
+            };
+            
+            var formEl = document.getElementsByTagName("form")[0];
+            var addButton = document.getElementsByClassName("add")[0];
+            addButton.addEventListener("click", addPerson, false);
+            formEl.addEventListener("submit", submit, false);
+
         </script>
     </body>
 </html>
